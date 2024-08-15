@@ -14,10 +14,15 @@ import {
 import WalletProfile from "@/app/components/WalletProfile";
 import WalletTransactions from "@/app/components/Transactions";
 
+import { getInboundTransactions } from "../../../../../utils";
+import TableTransactions from "@/app/components/HistoryTable";
+
 export default function WalletPage() {
   const { wallet_address } = useParams<{ wallet_address: string }>();
   const [invalidWallet, setInvalidWallet] = useState<boolean>(false);
   const [walletDetails, setWalletDetails] = useState<any>({});
+  const [walletTransactions, setWalletTransactions] = useState<any[]>([]);
+
   const { publicKey }: any = useWallet();
   const { connection } = useConnection();
 
@@ -25,13 +30,21 @@ export default function WalletPage() {
     fetchWalletDetails();
   }, [publicKey]);
 
-  const fetchWalletDetails = () => {
+  const fetchWalletDetails = async () => {
     if (publicKey) {
       const valid = validateSolAddress(wallet_address);
       if (valid) {
         setInvalidWallet(true);
       } else {
         getWalletInfo(new PublicKey(wallet_address));
+        const transactions = await getInboundTransactions(wallet_address);
+        setWalletTransactions(
+          transactions.map((e: any) => {
+            e.key = e.signature;
+            return e;
+          })
+        );
+        console.log("transactions", transactions);
       }
     }
   };
@@ -88,7 +101,11 @@ export default function WalletPage() {
           <CardBody>
             <div className="flex flex-row gap-6">
               <div className="basis-1/4 p-4 bg-slate-800 rounded-lg text-center">
-                <WalletProfile {...walletDetails} wallet_address={wallet_address} fetchWalletDetails={fetchWalletDetails} />
+                <WalletProfile
+                  {...walletDetails}
+                  wallet_address={wallet_address}
+                  fetchWalletDetails={fetchWalletDetails}
+                />
               </div>
               <div className="basis-3/4 p-5 bg-slate-800 rounded-lg w-max">
                 {walletDetails?.created_by && (
@@ -100,6 +117,27 @@ export default function WalletPage() {
                   />
                 )}
               </div>
+            </div>
+            <div className="mt-5">
+              <h1 className="text-gray-100 mb-2 text-xl">Wallet transactions</h1>
+              <TableTransactions
+                rows={walletTransactions}
+                label="Wallet history"
+                columns={[
+                  {
+                    key: "signature",
+                    label: "Signature",
+                  },
+                  {
+                    key: "amount",
+                    label: "Amount",
+                  },
+                  {
+                    key: "transactionDate",
+                    label: "Date & time",
+                  },
+                ]}
+              ></TableTransactions>
             </div>
           </CardBody>
         </Card>

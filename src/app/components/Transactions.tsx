@@ -16,7 +16,7 @@ import { useProgram } from "./WalletContextProvider";
 import { validateSolAddress } from "../../../utils";
 import { PROGRAM_ID } from "../../../constants";
 import LoadingComponent from "./Loading";
-import WalletSignTransactions from "./HistoryTable";
+import TableTransactions from "./HistoryTable";
 
 interface TransactionsProps {
   wallet_address: string;
@@ -181,7 +181,12 @@ const WalletTransactions: React.FC<TransactionsProps> = ({
   };
 
   const openHistory = (history: any) => {
-    setHistory(history);
+    setHistory(
+      history.map((e: any) => {
+        e.key = e.transaction_signature_address;
+        return e;
+      })
+    );
     setShowHistory(true);
     onOpen();
   };
@@ -284,7 +289,7 @@ const WalletTransactions: React.FC<TransactionsProps> = ({
         </div>
       </div>
       <Modal
-        size={showHistory ? "2xl" : "md"}
+        size={showHistory ? "3xl" : "md"}
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         className="bg-slate-900"
@@ -298,9 +303,20 @@ const WalletTransactions: React.FC<TransactionsProps> = ({
               <ModalBody>
                 {showHistory ? (
                   <div>
-                    <WalletSignTransactions
-                      history={history}
-                    ></WalletSignTransactions>
+                    <TableTransactions
+                      rows={history}
+                      label="Transaction history"
+                      columns={[
+                        {
+                          key: "signer",
+                          label: "User",
+                        },
+                        {
+                          key: "timestamp",
+                          label: "Date & time",
+                        },
+                      ]}
+                    ></TableTransactions>
                   </div>
                 ) : (
                   <form>

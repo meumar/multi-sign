@@ -8,31 +8,69 @@ import {
   TableCell,
   getKeyValue,
 } from "@nextui-org/table";
+import { Chip } from "@nextui-org/chip";
 
 interface TransactionsProps {
-  history: any[];
+  rows: any[];
+  label: string;
+  columns: any[];
 }
 
-const WalletSignTransactions: React.FC<TransactionsProps> = ({ history }) => {
+const TableTransactions: React.FC<TransactionsProps> = ({
+  rows,
+  label,
+  columns,
+}) => {
+  const renderCell = React.useCallback((user: any, columnKey: any) => {
+    const cellValue = user[columnKey];
+
+    switch (columnKey) {
+      case "amount":
+        return (
+          <Chip
+            className="capitalize"
+            color={cellValue > 0 ? "success" : "danger"}
+            size="sm"
+            variant="flat"
+          >
+            {cellValue}
+          </Chip>
+        );
+      default:
+        return <p className="text-gray-100"> {cellValue} </p>;
+    }
+  }, []);
+
   return (
-    <Table>
-      <TableHeader>
-        <TableColumn key="signer">User</TableColumn>
-        <TableColumn key="timestamp">Timestamp</TableColumn>
-      </TableHeader>
-      <TableBody items={history}>
-        {(item) => (
-          <TableRow key={item.transaction_signature_address}>
-            {(columnKey) => (
-              <TableCell className="text-slate-400">
-                <p className="truncate">{getKeyValue(item, columnKey)}</p>
-              </TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+    <div>
+      <Table
+        aria-label="Example table with dynamic content"
+        removeWrapper
+        selectionMode="none"
+        className="bg-slate-800 rounded-lg p-5"
+      >
+        <TableHeader columns={columns}>
+          {(column) => (
+            <TableColumn
+              key={column.key}
+              className="bg-slate-900 text-gray-100 text-xl"
+            >
+              {column.label}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody items={rows} emptyContent={"No data"}>
+          {(item) => (
+            <TableRow key={item.id}>
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 
-export default WalletSignTransactions;
+export default TableTransactions;

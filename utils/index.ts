@@ -1,5 +1,7 @@
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, clusterApiUrl, Connection } from "@solana/web3.js";
 import * as borsh from "@coral-xyz/borsh";
+
+const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
 export const validateSolAddress = (address: string) => {
   try {
@@ -27,12 +29,19 @@ export const accountDetails = borsh.struct([
   borsh.publicKey("user5"),
 ]);
 
-
 export const walletAccoutDesiriazation = (account: any) => {
   const offset = 8;
-  const { is_transaction, name, created_by, threshold, user1, user2, user3, user4, user5 } = accountDetails.decode(
-    account.data.slice(offset, account.data.length)
-  );
+  const {
+    is_transaction,
+    name,
+    created_by,
+    threshold,
+    user1,
+    user2,
+    user3,
+    user4,
+    user5,
+  } = accountDetails.decode(account.data.slice(offset, account.data.length));
   return {
     is_transaction: is_transaction,
     created_by: created_by.toBase58(),
@@ -122,3 +131,38 @@ export const transactionSignAccoutDesiriazation = (account: any) => {
     timestamp: new Date(timestamp.toNumber() * 1000).toLocaleString(),
   };
 };
+
+export const getInboundTransactions = async (address: string) => {
+  const walletAddress: PublicKey = new PublicKey(address);
+  const signatures = await connection.getConfirmedSignaturesForAddress2(
+    walletAddress
+  );
+
+  const inboundTransactions = [];
+  for (let signatureInfo of signatures) {
+    const transaction: any = await connection.getConfirmedTransaction(
+      signatureInfo.signature
+    );  
+    if (transaction && transaction.meta && transaction.meta.postBalances && transaction.transaction) {
+      const accountKeys = transaction.transaction._message.accountKeys;
+      const postBalances = transaction.meta.postBalances;
+      const preBalances = transaction.meta.preBalances;
+      const walletIndex = accountKeys.findIndex(
+        (key: any) => key.toString() === walletAddress.toString()
+      );
+      const blockTime = transaction.blockTime;
+      const transactionDate = new Date(blockTime * 1000).toLocaleString();
+      if (walletIndex >= 0) {
+        if (postBalances[walletIndex] != preBalances[walletIndex]) {
+          inboundTransactions.push({
+            signature: signatureInfo.signature,
+            amount: postBalances[walletIndex] - preBalances[walletIndex],
+            transactionDate,
+            transaction,
+          });
+        }
+      }
+    }
+  }
+  return inboundTransactions;
+}
