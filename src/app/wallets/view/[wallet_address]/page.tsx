@@ -88,7 +88,7 @@ export default function WalletPage() {
           <CardBody>
             <div className="flex flex-row gap-6">
               <div className="basis-1/4 p-4 bg-slate-800 rounded-lg text-center">
-                <WalletProfile {...walletDetails} />
+                <WalletProfile {...walletDetails} wallet_address={wallet_address} fetchWalletDetails={fetchWalletDetails} />
               </div>
               <div className="basis-3/4 p-5 bg-slate-800 rounded-lg w-max">
                 {walletDetails?.created_by && (

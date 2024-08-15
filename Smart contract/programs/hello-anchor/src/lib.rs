@@ -127,6 +127,26 @@ mod hello_anchor {
         Ok(())
     }
 
+    pub fn transfer_sol_to_wallet(ctx: Context<TransferSolToWallet>, amount: u64) -> Result<()> {
+        // Invoke the transfer SOL instruction
+        let ix = anchor_lang::solana_program::system_instruction::transfer(
+            &ctx.accounts.signer.key(),
+            &ctx.accounts.wallet_account.key(),
+            amount,
+        );
+
+        // Perform the transfer
+        anchor_lang::solana_program::program::invoke(
+            &ix,
+            &[
+                ctx.accounts.signer.to_account_info(),
+                ctx.accounts.wallet_account.to_account_info(),
+            ],
+        )?;
+
+        Ok(())
+    }
+
     // pub fn close_pda_account(_ctx: Context<ClosePdaAccount>) -> Result<()> {
     //     msg!("Accounts closed");
     //     Ok(())
@@ -212,6 +232,15 @@ pub struct TransactionSignature {
     pub wallet_account: Pubkey,
     pub signer: Pubkey,
     pub timestamp: u64,
+}
+
+#[derive(Accounts)]
+pub struct TransferSolToWallet<'info> {
+    #[account(mut)]
+    pub signer: Signer<'info>,
+    #[account(mut)]
+    pub wallet_account: Account<'info, WalletAccount>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
