@@ -10,6 +10,11 @@ This is a multi-signature wallet application built on the Solana blockchain usin
 - **Approval Mechanism:** A transaction can only be executed if the number of approvals meets the defined threshold.
 - **Transaction History:** Users can view the history of transactions, including initiated transfers and approvals.
 
+##Accounts used
+
+![alt text](https://github.com/meumar/my-files/blob/main/Multi-sign.jpg?raw=true)
+
+
 ## Getting Started
 
 ### Prerequisites
