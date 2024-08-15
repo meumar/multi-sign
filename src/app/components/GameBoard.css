@@ -1,0 +1,21 @@
+.game-board {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  margin: auto;
+}
+
+.board-row {
+  display: flex;
+}
+
+.board-cell {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  border: 0.5px solid #ffffff;
+  align-items: center;
+  justify-content: center;
+  font-size: 8rem;
+}
+
