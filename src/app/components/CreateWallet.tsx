@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 import { useProgram } from "./WalletContextProvider";
 // import idl from "../../../idl.json";
 
-import "./GameBoard.css";
 import { useConnection } from "@solana/wallet-adapter-react";
 
 import { PROGRAM_ID } from "../../../constants";

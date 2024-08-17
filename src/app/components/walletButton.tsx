@@ -3,7 +3,6 @@ import type { NextPage } from "next";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 import { WalletButtonImport } from "./WalletContextProvider";
-import "./GameBoard.css";
 
 const WalletButton: NextPage = () => {
   const { publicKey } = useWallet();
